@@ -1,35 +1,13 @@
-import React from 'react';
-import {
-  SafeAreaView,
-  StyleSheet,
-  Text,
-  View,
-} from 'react-native';
+import AppNavigator from './src/navigation/AppNavigator';
+import { enableScreens } from 'react-native-screens';
+
+enableScreens();
 
 
-
-function App(): React.JSX.Element {
+function App() {
   return (
-    <SafeAreaView style ={styles.safeArea}>
-      <View style={styles.container}>
-        <Text>main</Text>   
-      </View>
-    </SafeAreaView>
-    
+    <AppNavigator />
   );
 }
-
-const styles = StyleSheet.create({
-  safeArea: {
-    flex: 1, 
-    backgroundColor: 'white',
-  },
-  container: {
-    flex: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
-  },
-})
-
 
 export default App;
