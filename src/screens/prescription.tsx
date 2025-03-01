@@ -55,12 +55,12 @@ function PrescriptionScreen() {
           <TextInput style={styles.input} placeholder="상세 정보를 입력해 주세요 예) 감기약" />
         </View>
         <Text style={styles.sectionTitle}>복용 기간을 입력해주세요</Text>
-        {/* 🔹 날짜 입력 */}
         <View style={styles.dateContainer}>
           <TextInput style={styles.dateInput} placeholder="2025-02-25" />
-          <Text> ~ </Text>
+          <Text style={styles.tildeText}>~</Text>
           <TextInput style={styles.dateInput} placeholder="조제일자 입력" />
         </View>
+
 
         {/* 🔹 복용 시간 선택 */}
         {["아침 09:00", "점심 13:00", "저녁 19:00"].map((time, index) => (
@@ -154,23 +154,31 @@ const styles = StyleSheet.create({
     marginBottom: 16,
   },
   input: {
-    width: "48%",
+    flex: 1, // 부모의 크기를 꽉 채우도록 설정
     borderWidth: 1,
     borderColor: "#ddd",
     padding: 10,
     borderRadius: 5,
+    backgroundColor: "white",
   },
   dateContainer: {
     flexDirection: "row",
+    alignItems: "center", // 🔹 모든 요소를 세로 중앙 정렬
     justifyContent: "space-between",
     marginBottom: 16,
   },
   dateInput: {
-    width: "48%",
+    flex: 1, // 🔹 각 입력칸이 동일한 너비를 갖도록 설정
     borderWidth: 1,
     borderColor: "#ddd",
     padding: 10,
     borderRadius: 5,
+    textAlign: "center", // 🔹 입력 내용 가운데 정렬
+  },
+  tildeText: {
+    alignSelf: "center", // 🔹 `~` 기호를 수직 중앙 정렬
+    marginHorizontal: 10, // 🔹 좌우 간격 추가
+    fontSize: 18, // 🔹 가독성을 위해 폰트 크기 증가
   },
   addButton: {
     backgroundColor: "#0169CD",
