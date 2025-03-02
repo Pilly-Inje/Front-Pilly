@@ -1,11 +1,16 @@
 import React from 'react';
 import Prescription from '../screens/prescription';
+import PrescriptionList from '../screens/prescriptionList';
+import PrescriptionDetail from '../screens/prescriptionDetail'
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import { NavigationContainer } from '@react-navigation/native';
 import { Text } from 'react-native';
 
 export type RootStackParamList = {
   Prescription: undefined;
+  PrescriptionList : undefined;
+  PrescriptionDetail : undefined;
+  AlarmScreen : undefined;
 };
 
 const Stack = createNativeStackNavigator<RootStackParamList>();
@@ -16,6 +21,14 @@ const AfterLogin = () => {
 
 const BeforeLogin = () => (
     <Stack.Navigator screenOptions={{ headerShown: false }}>
+      <Stack.Screen
+        name="PrescriptionDetail"
+        component={PrescriptionDetail}
+        options={{ title: 'PrescriptionDetail' }} />
+      <Stack.Screen
+        name="PrescriptionList"
+        component={PrescriptionList}
+        options={{ title: 'PrescriptionList' }} />
       <Stack.Screen
         name="Prescription"
         component={Prescription}
