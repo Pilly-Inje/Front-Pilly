@@ -20,6 +20,20 @@ buildscript {
 
         classpath("com.google.gms:google-services:4.4.2") // 추가
     }
+    allprojects {
+        repositories {
+            google()
+            mavenCentral()
+        }
+        configurations.all {
+            resolutionStrategy {
+                force 'androidx.core:core:1.13.1'
+                force 'androidx.appcompat:appcompat:1.6.1'
+                exclude group: "com.android.support", module: "support-v4"
+            }
+        }
+    }
+
 }
 
 apply plugin: "com.facebook.react.rootproject"
