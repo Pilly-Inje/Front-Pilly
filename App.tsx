@@ -13,10 +13,22 @@ let lastNotificationId = "";
 
 const App = () => {
   useEffect(() => {
-    const initializeFirebase = async () => {
+    // ✅ Firebase 초기화를 지연하여 실행 (Activity가 완전히 붙은 후 실행)
+    const timeoutId = setTimeout(async () => {
       try {
+        console.log("🚀 Firebase 초기화 시작");
+
         // ✅ 푸시 알림 권한 요청
         await requestNotificationPermission();
+
+        // ✅ FCM 토큰 가져오기 (콘솔에 출력)
+        const token = await messaging().getToken();
+        console.log('🔑 FCM 기기 토큰:', token);
+
+        // ✅ iOS의 경우 토큰이 변경될 때 감지
+        const unsubscribeOnTokenRefresh = messaging().onTokenRefresh(newToken => {
+          console.log('🔄 FCM 토큰이 갱신됨:', newToken);
+        });
 
         // ✅ Android 알림 채널 생성 (필수)
         if (Platform.OS === 'android') {
@@ -36,7 +48,7 @@ const App = () => {
         const unsubscribeOnMessage = messaging().onMessage(async remoteMessage => {
           console.log('📩 [포그라운드] 알림 수신:', remoteMessage);
 
-          // ✅ 중복 알림 방지 (같은 메시지가 두 번 뜨지 않도록)
+          // ✅ 중복 알림 방지
           if (lastNotificationId === remoteMessage.messageId) {
             console.log("⚠️ 동일한 알림이 감지되어 무시됨");
             return;
@@ -54,7 +66,7 @@ const App = () => {
           });
         });
 
-        // ✅ 백그라운드 상태에서 푸시 알림 클릭 감지 (여기서는 알림 생성 X)
+        // ✅ 백그라운드 상태에서 푸시 알림 클릭 감지
         const unsubscribeOnOpenedApp = messaging().onNotificationOpenedApp(remoteMessage => {
           console.log('🔔 [백그라운드] 알림 클릭:', remoteMessage);
           Alert.alert('백그라운드 알림 클릭!', JSON.stringify(remoteMessage, null, 2));
@@ -63,18 +75,17 @@ const App = () => {
         return () => {
           unsubscribeOnMessage();
           unsubscribeOnOpenedApp();
+          unsubscribeOnTokenRefresh(); // 🔥 구독 해제 (메모리 누수 방지)
         };
       } catch (error) {
         console.error('❌ Firebase 초기화 중 오류 발생:', error);
       }
-    };
+    }, 1000); // ✅ 1초 후 실행하여 Activity가 완전히 붙은 후 Firebase API 호출
 
-    initializeFirebase();
+    return () => clearTimeout(timeoutId); // ✅ 컴포넌트 언마운트 시 타이머 해제
   }, []);
 
-  return (
-    <AppNavigator />
-  );
+  return <AppNavigator />;
 };
 
 // ✅ `setBackgroundMessageHandler`에서 `localNotification()` 실행하지 않음!

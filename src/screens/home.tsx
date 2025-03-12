@@ -11,11 +11,11 @@ const HomeScreen: React.FC = () => {
     <View style={styles.container}>
       <Button 
         title="📷 약봉투 사진 촬영"
-        onPress={() => navigation.navigate("")}
+        onPress={() => navigation.navigate("CameraScreen")}
       />
       <Button 
         title="✍️ 직접 입력"
-        onPress={() => navigation.navigate("ManualEntry")}
+        onPress={() => navigation.navigate("PrescriptionSetupScreen")}
       />
       <Button 
         title="📜 처방전 확인하기"

@@ -6,6 +6,8 @@
     <uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED"/>
     <uses-permission android:name="android.permission.FOREGROUND_SERVICE"/>
     <uses-permission android:name="android.permission.BROADCAST_CLOSE_SYSTEM_DIALOGS" />
+    <uses-permission android:name="android.permission.CAMERA" />
+
 
     <uses-permission android:name="android.permission.POST_NOTIFICATIONS"/>  <!-- ✅ Android 13 이상 푸시 권한 -->
 
