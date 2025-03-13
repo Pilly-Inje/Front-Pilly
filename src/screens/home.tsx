@@ -10,6 +10,7 @@ import {
 } from "react-native";
 import { useNavigation } from "@react-navigation/native";
 import Icon from "react-native-vector-icons/MaterialCommunityIcons";
+import BottomTabNavigator from "../navigation/BottomTabNavigator";
 
 const HomeScreen = () => {
   const navigation = useNavigation();
@@ -35,7 +36,7 @@ const HomeScreen = () => {
       <ScrollView>
         {/* 🔹 상단 프로필 & 로고 */}
         <View style={styles.header}>
-          <Image source={require("../assets/Pilly-logo2.png")} style={styles.logo} />
+          <Image source={require("../assets/Pilly-logo2.png")} style={styles.mainLogo} />
           <TouchableOpacity>
             
           <Image source={require("../assets/profile.png")} style={styles.profile} />
@@ -102,20 +103,6 @@ const HomeScreen = () => {
         </TouchableOpacity>
       </ScrollView>
 
-      {/* 🔹 하단 네비게이션 바 */}
-      <View style={styles.bottomNav}>
-        {[
-          { name: "home", label: "홈" },
-          { name: "magnify", label: "약 검색" },
-          { name: "map-marker", label: "약국 찾기" },
-          { name: "pill", label: "약 관리" },
-        ].map((item, index) => (
-          <TouchableOpacity key={index} style={styles.navButton}>
-            <Icon name={item.name} size={28} color="#444" />
-            <Text style={styles.navText}>{item.label}</Text>
-          </TouchableOpacity>
-        ))}
-      </View>
     </View>
   );
 };
@@ -132,13 +119,17 @@ const styles = StyleSheet.create({
     alignItems: "center",
     padding: 16,
   },
+  mainLogo: {
+    width: 60,
+    height: 60,
+  },
   logo: {
     width: 50,
     height: 50,
   },
   profile: {
-    width: 35,
-    height: 35,
+    width: 30,
+    height: 30,
   },
   sectionTitle: {
     fontSize: 18,
