@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState } from "react";
 import {
   View,
   Text,
@@ -6,6 +6,7 @@ import {
   StyleSheet,
   ScrollView,
   Image,
+  Platform,
 } from "react-native";
 import { useNavigation } from "@react-navigation/native";
 import Icon from "react-native-vector-icons/MaterialCommunityIcons";
@@ -13,31 +14,46 @@ import Icon from "react-native-vector-icons/MaterialCommunityIcons";
 const HomeScreen = () => {
   const navigation = useNavigation();
 
+  // ✅ 약 복용 상태 관리
+  const [medicationStatus, setMedicationStatus] = useState([
+    "복용 확인",
+    "복용 확인",
+    "복용 확인",
+  ]);
+
+  // ✅ 버튼 클릭 시 상태 변경 함수
+  const toggleMedicationStatus = (index: number) => {
+    setMedicationStatus((prevStatus) =>
+      prevStatus.map((status, i) =>
+        i === index ? (status === "복용 확인" ? "완료했어요" : "복용 확인") : status
+      )
+    );
+  };
+
   return (
     <View style={styles.container}>
       <ScrollView>
         {/* 🔹 상단 프로필 & 로고 */}
         <View style={styles.header}>
-          <Image
-            source={require("../assets/Pilly-logo2.png")}
-            style={styles.logo}
-          />
+          <Image source={require("../assets/Pilly-logo2.png")} style={styles.logo} />
           <TouchableOpacity>
-            <Icon name="account-circle" size={30} color="#444" />
+            
+          <Image source={require("../assets/profile.png")} style={styles.profile} />
           </TouchableOpacity>
         </View>
 
         {/* 🔹 오늘의 약 복용 여부 */}
         <Text style={styles.sectionTitle}>오늘 약 복용하셨나요?</Text>
-        {["완료했어요", "복용 확인", "복용 확인"].map((status, index) => (
-          <View key={index} style={styles.medicationRow}>
+        {medicationStatus.map((status, index) => (
+          <View key={index} style={[styles.medicationRow, styles.shadow]}>
             <Text style={styles.timeText}>09:00</Text>
             <Text style={styles.pillCount}>약 3개</Text>
-            <TouchableOpacity 
+            <TouchableOpacity
               style={[
                 styles.medicationButton,
                 status === "완료했어요" ? styles.completedButton : styles.pendingButton,
               ]}
+              onPress={() => toggleMedicationStatus(index)}
             >
               <Text
                 style={[
@@ -52,35 +68,38 @@ const HomeScreen = () => {
         ))}
 
         {/* 🔹 쉽게 약 관리하기 */}
-        <Text style={styles.sectionTitle}>쉽게 약관리하기</Text>
+        <Text style={styles.sectionTitle}>쉽게 약 관리하기</Text>
         <View style={styles.cardContainer}>
           <TouchableOpacity
-            style={styles.card}
+            style={[styles.card, styles.shadow]}
             onPress={() => navigation.navigate("CameraScreen")}
           >
-            <Icon name="camera" size={40} color="#007AFF" />
-            <Text style={styles.cardTitle}>처방전/약봉투 촬영하기</Text>
+            <Image source={require("../assets/camera-3.png")} style={styles.iconLarge} />
+            <Text style={styles.cardTitle}>처방전/약봉투         촬영하기</Text>
             <Text style={styles.cardSubtitle}>사진 한 장으로 관리하기</Text>
           </TouchableOpacity>
 
           <TouchableOpacity
-            style={styles.card}
+            style={[styles.card, styles.shadow]}
             onPress={() => navigation.navigate("PrescriptionSetupScreen")}
           >
-            <Icon name="pill" size={40} color="#007AFF" />
+            <Image source={require("../assets/pills.png")} style={styles.iconLarge} />
             <Text style={styles.cardTitle}>직접 약 등록하기</Text>
             <Text style={styles.cardSubtitle}>비타민/영양제 관리하기</Text>
           </TouchableOpacity>
-
-          <TouchableOpacity
-            style={[styles.card, styles.highlightedCard]}
-            onPress={() => navigation.navigate("PrescriptionList")}
-          >
-            <Icon name="clipboard-list" size={40} color="#007AFF" />
-            <Text style={styles.highlightedTitle}>처방전 확인하기</Text>
-            <Text style={styles.cardSubtitle}>등록한 처방전/약봉투 확인</Text>
-          </TouchableOpacity>
         </View>
+
+        {/* 🔹 "처방전 확인하기" 버튼 (가로로 길게) */}
+        <TouchableOpacity
+          style={[styles.wideCard, styles.shadow]}
+          onPress={() => navigation.navigate("PrescriptionList")}
+        >
+          <Image source={require("../assets/prescriptive-analysis.png")} style={styles.iconLarge} />
+          <View style={styles.wideCardTextContainer}>
+            <Text style={styles.wideCardTitle}>처방전 확인하기</Text>
+            <Text style={styles.cardSubtitle}>등록한 처방전/약봉투 확인</Text>
+          </View>
+        </TouchableOpacity>
       </ScrollView>
 
       {/* 🔹 하단 네비게이션 바 */}
@@ -88,11 +107,11 @@ const HomeScreen = () => {
         {[
           { name: "home", label: "홈" },
           { name: "magnify", label: "약 검색" },
-          { name: "hospital-building", label: "약국 찾기" },
+          { name: "map-marker", label: "약국 찾기" },
           { name: "pill", label: "약 관리" },
         ].map((item, index) => (
           <TouchableOpacity key={index} style={styles.navButton}>
-            <Icon name={item.name} size={24} color="#444" />
+            <Icon name={item.name} size={28} color="#444" />
             <Text style={styles.navText}>{item.label}</Text>
           </TouchableOpacity>
         ))}
@@ -117,6 +136,10 @@ const styles = StyleSheet.create({
     width: 50,
     height: 50,
   },
+  profile: {
+    width: 35,
+    height: 35,
+  },
   sectionTitle: {
     fontSize: 18,
     fontWeight: "bold",
@@ -127,11 +150,11 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     alignItems: "center",
     justifyContent: "space-between",
-    backgroundColor: "#F8F8F8",
-    padding: 12,
+    backgroundColor: "#F2F8FF",
+    padding: 14,
     borderRadius: 10,
     marginHorizontal: 16,
-    marginVertical: 5,
+    marginVertical: 10,
   },
   timeText: {
     fontSize: 16,
@@ -142,9 +165,9 @@ const styles = StyleSheet.create({
     color: "#007AFF",
   },
   medicationButton: {
-    paddingVertical: 6,
-    paddingHorizontal: 12,
-    borderRadius: 5,
+    paddingVertical: 8,
+    paddingHorizontal: 16,
+    borderRadius: 6,
   },
   completedButton: {
     backgroundColor: "#007AFF",
@@ -152,6 +175,7 @@ const styles = StyleSheet.create({
   pendingButton: {
     borderWidth: 1,
     borderColor: "#007AFF",
+    backgroundColor: "white",
   },
   buttonText: {
     fontSize: 14,
@@ -165,40 +189,63 @@ const styles = StyleSheet.create({
   },
   cardContainer: {
     flexDirection: "row",
-    flexWrap: "wrap",
     justifyContent: "space-between",
     paddingHorizontal: 16,
-    marginTop: 10,
+    marginTop: 20,
   },
   card: {
     width: "48%",
     backgroundColor: "#F2F8FF",
-    padding: 16,
-    borderRadius: 10,
+    padding: 14,
+    borderRadius: 12,
     alignItems: "center",
-    marginBottom: 10,
+    marginBottom: 14,
   },
-  highlightedCard: {
-    borderWidth: 1,
-    borderColor: "#007AFF",
+  wideCard: {
+    flexDirection: "row",
+    alignItems: "center",
+    backgroundColor: "#F2F8FF",
+    padding: 14,
+    borderRadius: 12,
+    marginHorizontal: 16,
+    marginBottom: 20,
+  },
+  wideCardTextContainer: {
+    marginLeft: 10,
+  },
+  wideCardTitle: {
+    fontSize: 15,
+    fontWeight: "bold",
+    color: "#000",
   },
   cardTitle: {
-    fontSize: 14,
+    fontSize: 15,
     fontWeight: "bold",
     textAlign: "center",
     marginTop: 8,
-  },
-  highlightedTitle: {
-    fontSize: 14,
-    fontWeight: "bold",
-    textAlign: "center",
-    marginTop: 8,
-    color: "#007AFF",
+    color: "#000", // 🔥 기존 파란색 -> 검정색 변경
   },
   cardSubtitle: {
     fontSize: 12,
     color: "#555",
-    textAlign: "center",
+  },
+  iconLarge: {
+    width: 40,
+    height: 40,
+    marginBottom: 8,
+  },
+  shadow: {
+    ...Platform.select({
+      ios: {
+        shadowColor: "#000",
+        shadowOffset: { width: 0, height: 3 },
+        shadowOpacity: 0.1,
+        shadowRadius: 5,
+      },
+      android: {
+        elevation: 5,
+      },
+    }),
   },
   bottomNav: {
     flexDirection: "row",
