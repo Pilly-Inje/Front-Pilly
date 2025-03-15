@@ -9,8 +9,6 @@ import {
   Platform,
 } from "react-native";
 import { useNavigation } from "@react-navigation/native";
-import Icon from "react-native-vector-icons/MaterialCommunityIcons";
-import BottomTabNavigator from "../navigation/BottomTabNavigator";
 
 const HomeScreen = () => {
   const navigation = useNavigation();
@@ -36,7 +34,7 @@ const HomeScreen = () => {
       <ScrollView>
         {/* 🔹 상단 프로필 & 로고 */}
         <View style={styles.header}>
-          <Image source={require("../assets/Pilly-logo2.png")} style={styles.mainLogo} />
+          <Image source={require("../assets/logo.png")} style={styles.mainLogo} />
           <TouchableOpacity>
             
           <Image source={require("../assets/profile.png")} style={styles.profile} />
@@ -82,7 +80,7 @@ const HomeScreen = () => {
 
           <TouchableOpacity
             style={[styles.card, styles.shadow]}
-            onPress={() => navigation.navigate("PrescriptionSetupScreen")}
+            onPress={() => navigation.navigate("PrescriptionSelfSetupScreen")}
           >
             <Image source={require("../assets/pills.png")} style={styles.iconLarge} />
             <Text style={styles.cardTitle}>직접 약 등록하기</Text>
@@ -102,7 +100,6 @@ const HomeScreen = () => {
           </View>
         </TouchableOpacity>
       </ScrollView>
-
     </View>
   );
 };

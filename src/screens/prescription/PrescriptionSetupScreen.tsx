@@ -1,186 +1,165 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import {
   View,
   Text,
   TouchableOpacity,
-  ScrollView,
-  Image,
-  TextInput,
   StyleSheet,
+  TextInput,
+  ScrollView,
 } from "react-native";
-import Icon from "react-native-vector-icons/MaterialCommunityIcons";
 import { useNavigation, useRoute } from "@react-navigation/native";
+import { Checkbox } from "react-native-paper";
+import Icon from "react-native-vector-icons/MaterialCommunityIcons";
 
-const PrescriptionDetailScreen = () => {
+const PrescriptionSetupScreen = () => {
   const navigation = useNavigation();
   const route = useRoute();
-  const { prescription } = route.params || {}; // 🔥 `route.params`가 없을 경우 대비
 
-  const [memo, setMemo] = useState("");
+  // ✅ 처방전 정보 초기화
+  const prescription = route.params?.prescription || { medicinesList: [] };
 
-  const handleBack = () => {
-    if (navigation.canGoBack()) {
-      navigation.goBack(); // 🔥 이전 화면이 있을 경우에만 실행
-    } else {
-      navigation.navigate("Home"); // 🔥 이전 화면이 없을 경우 홈으로 이동
+  // ✅ 약 목록 및 입력 필드 상태
+  const [medicineList, setMedicineList] = useState(prescription.medicinesList || []);
+  const [selectedMedicines, setSelectedMedicines] = useState<boolean[]>(
+    prescription.medicinesList?.map(() => true) || []
+  );
+  const [medicineInput, setMedicineInput] = useState("");
+
+  // ✅ 새로운 약이 추가되었을 때 상태 업데이트
+  useEffect(() => {
+    if (route.params?.newMedicine) {
+      setMedicineList((prev) => [...prev, route.params.newMedicine]);  // ✅ 객체 중첩 제거
+      setSelectedMedicines((prev) => [...prev, true]);
     }
+  }, [route.params?.newMedicine]);
+  
+
+  // ✅ 체크박스 상태 변경 함수
+  const toggleMedicineSelection = (index: number) => {
+    setSelectedMedicines((prev) => {
+      const updatedSelection = [...prev];
+      updatedSelection[index] = !updatedSelection[index];
+      return updatedSelection;
+    });
+  };
+
+  // ✅ 직접 입력한 약 추가
+  const addMedicineManually = () => {
+    if (medicineInput.trim() !== "") {
+      setMedicineList((prev) => [...prev, { name: medicineInput.trim() }]);
+      setSelectedMedicines((prev) => [...prev, true]); // 체크된 상태로 추가
+      setMedicineInput(""); // 입력 필드 초기화
+    }
+  };
+
+  // ✅ 약 삭제 기능
+  const removeMedicine = (index: number) => {
+    setMedicineList((prev) => prev.filter((_, i) => i !== index));
+    setSelectedMedicines((prev) => prev.filter((_, i) => i !== index));
   };
 
   return (
     <ScrollView style={styles.container}>
-      {/* 🔹 네비게이션 바 */}
+      {/* 🔹 헤더 */}
       <View style={styles.header}>
-        <TouchableOpacity style={styles.backButton} onPress={handleBack}>
+        <TouchableOpacity onPress={() => navigation.goBack()} style={styles.backButton}>
           <Icon name="arrow-left" size={24} color="black" />
         </TouchableOpacity>
-        <Text style={styles.title}>처방전/약봉투 상세보기</Text>
+        <Text style={styles.headerTitle}>직접 약 등록하기</Text>
       </View>
 
-      {/* 🔹 날짜 (데이터가 없을 경우 대비) */}
-      <Text style={styles.date}>{prescription?.date || "날짜 정보 없음"}</Text>
+      {/* 🔹 약 추가 입력창 */}
+      <Text style={styles.subtitle}>약 이름을 추가해주세요.</Text>
+      <View style={styles.inputRow}>
+        <TextInput
+          style={styles.input}
+          placeholder="예) 타이레놀, 감기약"
+          value={medicineInput}
+          onChangeText={setMedicineInput}
+        />
+        <TouchableOpacity style={styles.addButton} onPress={addMedicineManually}>
+          <Text style={styles.addButtonText}>추가</Text>
+        </TouchableOpacity>
+      </View>
 
-      {/* 🔹 처방전 이미지 (데이터가 없을 경우 대비) */}
-      {prescription?.image ? (
-        <Image source={{ uri: prescription.image }} style={styles.image} />
-      ) : (
-        <Text style={styles.noImageText}>이미지 없음</Text>
-      )}
-
-      {/* 🔹 약 정보 리스트 */}
-      <Text style={styles.sectionTitle}>처방받은 약</Text>
-      {prescription?.medicinesList && prescription.medicinesList.length > 0 ? (
-        prescription.medicinesList.map((medicine, index) => (
-          <View key={index} style={styles.medicineCard}>
-            <Image source={{ uri: medicine.image }} style={styles.medicineImage} />
-            <View style={styles.medicineInfo}>
-              <Text style={styles.medicineType}>전문</Text>
-              <Text style={styles.medicineName}>{medicine.name}</Text>
-              <Text style={styles.medicineCompany}>{medicine.company}</Text>
+      {/* 🔹 추가된 약 리스트 (체크박스 포함) */}
+      {medicineList.length > 0 && (
+        <View style={styles.medicineListContainer}>
+          {medicineList.map((medicine, index) => (
+            <View key={index} style={styles.medicineItem}>
+              <Checkbox.Android
+                status={selectedMedicines[index] ? "checked" : "unchecked"}
+                onPress={() => toggleMedicineSelection(index)}
+                color="#007AFF"
+              />
+              <Text style={styles.medicineText}>{medicine.name}</Text>
+              <TouchableOpacity onPress={() => removeMedicine(index)}>
+                <Icon name="close-circle" size={20} color="red" />
+              </TouchableOpacity>
             </View>
-          </View>
-        ))
-      ) : (
-        <Text style={styles.noMedicineText}>처방된 약 정보 없음</Text>
+          ))}
+        </View>
       )}
 
-      {/* 🔹 메모 입력 */}
-      <Text style={styles.sectionTitle}>메모</Text>
-      <TextInput
-        style={styles.memoInput}
-        placeholder="메모를 입력하세요"
-        value={memo}
-        onChangeText={setMemo}
-        multiline
-      />
-      <TouchableOpacity style={styles.memoButton}>
-        <Text style={styles.memoButtonText}>메모 저장하기</Text>
+      {/* 🔹 약 검색 버튼 */}
+      <View style={styles.addMedicineBox}>
+        <Text style={styles.infoText}>아래 버튼으로 약을 검색하여 추가해보세요.</Text>
+        <TouchableOpacity
+          style={styles.searchButton}
+          onPress={() => navigation.navigate("PrescriptionSearchScreen")}
+        >
+          <Icon name="plus-circle-outline" size={24} color="#007AFF" />
+          <Text style={styles.searchButtonText}>약 검색</Text>
+        </TouchableOpacity>
+      </View>
+
+      {/* 🔹 처방전 상세 정보 입력 */}
+      <Text style={styles.subtitle}>처방전의 상세정보를 입력해주세요</Text>
+      <TextInput style={styles.input} placeholder="처방전의 이름을 입력하세요. 예) 감기약 처방전" />
+      <View style={styles.dateInputContainer}>
+        <TextInput style={[styles.input, styles.dateInput]} placeholder="2025-02-25" />
+        <Text style={styles.dateSeparator}>~</Text>
+        <TextInput style={[styles.input, styles.dateInput]} placeholder="조제일자 입력" />
+      </View>
+
+      {/* 🔹 복용 시간 체크 */}
+      <View style={styles.medicineTimeContainer}>
+        {["아침 09:00", "점심 13:00", "저녁 19:00"].map((time, index) => (
+          <View key={index} style={styles.medicineTimeRow}>
+            <Checkbox.Android status="checked" color="#007AFF" />
+            <Text style={styles.medicineTimeText}>{time}</Text>
+          </View>
+        ))}
+      </View>
+
+      {/* 🔹 저장 버튼 */}
+      <TouchableOpacity style={styles.saveButton}>
+        <Text style={styles.saveButtonText}>약 추가 완료하기</Text>
       </TouchableOpacity>
     </ScrollView>
   );
 };
 
-// ✅ 기존 스타일 유지
+// 📌 스타일
 const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: "#fff",
-    padding: 16,
-  },
-  header: {
-    flexDirection: "row",
-    alignItems: "center",
-    justifyContent: "center",
-    marginBottom: 10,
-    position: "relative",
-  },
-  backButton: {
-    position: "absolute",
-    left: 0,
-    padding: 10,
-  },
-  title: {
-    fontSize: 18,
-    fontWeight: "bold",
-    textAlign: "center",
-  },
-  date: {
-    fontSize: 16,
-    fontWeight: "bold",
-    marginVertical: 10,
-  },
-  noImageText: {
-    textAlign: "center",
-    fontSize: 14,
-    color: "gray",
-    marginBottom: 10,
-  },
-  image: {
-    width: "100%",
-    height: 200,
-    borderRadius: 10,
-    marginBottom: 10,
-  },
-  sectionTitle: {
-    fontSize: 16,
-    fontWeight: "bold",
-    marginTop: 20,
-    marginBottom: 10,
-  },
-  medicineCard: {
-    flexDirection: "row",
-    alignItems: "center",
-    backgroundColor: "#F8F8F8",
-    padding: 10,
-    borderRadius: 10,
-    marginBottom: 10,
-  },
-  medicineImage: {
-    width: 40,
-    height: 40,
-    borderRadius: 5,
-    marginRight: 10,
-  },
-  medicineInfo: {
-    flex: 1,
-  },
-  medicineType: {
-    fontSize: 12,
-    color: "#007AFF",
-    fontWeight: "bold",
-  },
-  medicineName: {
-    fontSize: 14,
-    fontWeight: "bold",
-  },
-  medicineCompany: {
-    fontSize: 12,
-    color: "#555",
-  },
-  noMedicineText: {
-    textAlign: "center",
-    fontSize: 14,
-    color: "gray",
-    marginBottom: 10,
-  },
-  memoInput: {
-    backgroundColor: "#F8F8F8",
-    padding: 10,
-    borderRadius: 10,
-    height: 100,
-    textAlignVertical: "top",
-  },
-  memoButton: {
-    backgroundColor: "#007AFF",
-    padding: 15,
-    borderRadius: 10,
-    alignItems: "center",
-    marginTop: 10,
-  },
-  memoButtonText: {
-    color: "#fff",
-    fontSize: 16,
-    fontWeight: "bold",
-  },
+  container: { flex: 1, backgroundColor: "#fff", padding: 16 },
+  header: { flexDirection: "row", alignItems: "center", paddingBottom: 16 },
+  backButton: { marginRight: 10 },
+  headerTitle: { fontSize: 18, fontWeight: "bold" },
+  subtitle: { fontSize: 16, fontWeight: "bold", marginTop: 20, marginBottom: 10 },
+  inputRow: { flexDirection: "row", alignItems: "center" },
+  input: { flex: 1, backgroundColor: "#F8F8F8", padding: 12, borderRadius: 10, fontSize: 14 },
+  addButton: { marginLeft: 8, backgroundColor: "#007AFF", padding: 10, borderRadius: 10 },
+  addButtonText: { color: "#fff", fontWeight: "bold" },
+  medicineListContainer: { marginTop: 8 },
+  medicineItem: { flexDirection: "row", alignItems: "center", backgroundColor: "#F8F8FF", padding: 10, borderRadius: 10, marginBottom: 5 },
+  medicineText: { flex: 1, fontSize: 14 },
+  addMedicineBox: { backgroundColor: "#F2F8FF", padding: 16, borderRadius: 10, marginTop: 20, alignItems: "center" },
+  infoText: { fontSize: 14, color: "#555", marginBottom: 10, textAlign: "center" },
+  searchButton: { flexDirection: "row", alignItems: "center" },
+  searchButtonText: { fontSize: 16, color: "#007AFF", fontWeight: "bold", marginLeft: 5 },
+  saveButton: { backgroundColor: "#007AFF", padding: 15, borderRadius: 10, alignItems: "center", marginTop: 20 },
+  saveButtonText: { color: "#fff", fontSize: 16, fontWeight: "bold" },
 });
 
-export default PrescriptionDetailScreen;
+export default PrescriptionSetupScreen;

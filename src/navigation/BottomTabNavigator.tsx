@@ -2,13 +2,11 @@ import React from "react";
 import { createBottomTabNavigator } from "@react-navigation/bottom-tabs";
 import Icon from "react-native-vector-icons/MaterialCommunityIcons";
 
-// 🔹 각 화면 가져오기
 import HomeScreen from "../screens/Home";
-import SearchScreen from "../screens/SearchScreen";
+import SearchScreen from "../screens/search/SearchScreen";
 import MapScreen from "../screens/MapScreen";
 import AlarmScreen from "../screens/alarm/AlarmList";
 
-// ✅ 탭 네비게이터 생성
 const Tab = createBottomTabNavigator();
 
 const BottomTabNavigator = () => {
